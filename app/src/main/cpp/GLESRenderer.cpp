@@ -24,7 +24,7 @@ countries.
 
 
 bool
-GLESRenderer::init(std::string objFilePaths, std::string mtlFilePaths)
+GLESRenderer::init(std::string objFilePaths, std::string mtlFilePaths,std::string secondobjFilePaths, std::string secondmtlFilePaths)
 {
   //  AAssetManager* assetManager
     // Setup for Video Background rendering
@@ -155,6 +155,31 @@ GLESRenderer::init(std::string objFilePaths, std::string mtlFilePaths)
             LOG("Failed to load .obj model with .mtl and textures");
             return false;
         }
+
+
+
+        //TODO second object
+
+        std::string secondObjFilePath = secondobjFilePaths;
+        std::string secondMtlFilePath = secondmtlFilePaths;
+
+
+        std::vector<char> secondObjData, secondMtlData;
+        if (!readFileFromPath(secondObjFilePath, secondObjData)) {
+            LOG("Failed to load second .obj file");
+            return false;
+        }
+        if (!readFileFromPath(secondMtlFilePath, secondMtlData)) {
+            LOG("Failed to load second .mtl file");
+            return false;
+        }
+        if (!loadObjModelWithMtl(secondObjData, secondMtlData, basePath)) {
+            LOG("Failed to load second .obj model with .mtl and textures");
+            return false;
+        }
+
+
+
 
 
         // old
@@ -755,9 +780,6 @@ GLESRenderer::loadObjModel(const std::vector<char>& data, int& numVertices, std:
     }
     return true;
 }
-
-// TODO : new impl
-
 
 extern "C"
 JNIEXPORT void JNICALL

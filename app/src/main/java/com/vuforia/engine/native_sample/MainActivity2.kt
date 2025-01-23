@@ -53,9 +53,16 @@ class MainActivity2 : AppCompatActivity() {
             editor.putString("model_obj_path", model.objPath)
             editor.putString("model_mtl_path", model.mtlPath)
             editor.putString("model_texture_path", model.texturePath)
+
+
+            val secondModelTexturePath = "/storage/emulated/0/Download/texture_diffuse.png"
+            editor.putString("model_texture_path_2", secondModelTexturePath)
             editor.apply()
 
-            passModelDataToNative(model.objPath, model.mtlPath)
+            val secondobjPath = "/storage/emulated/0/Download/Machinery2.obj"
+            val secondmtlPath = "/storage/emulated/0/Download/base.mtl"
+
+            passModelDataToNative(model.objPath, model.mtlPath,secondobjPath,secondmtlPath)
 
             val intent = Intent(this, VuforiaActivity::class.java)
             intent.putExtra("Target", mTarget)
@@ -67,5 +74,5 @@ class MainActivity2 : AppCompatActivity() {
         recyclerView.adapter = adapter
     }
 
-    external fun passModelDataToNative(objPath: String, mtlPath: String)
+    external fun passModelDataToNative(objPath: String, mtlPath: String,secondobjPath: String, secondmtlPath: String)
 }

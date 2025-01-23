@@ -34,6 +34,9 @@ void* javaVM;
 std::string gObjFilePath;
 std::string gMtlFilePath;
 
+std::string SecondObjFilePath;
+std::string SecondMtlFilePath;
+
 
 // Struct to hold data that we need to store between calls
 struct
@@ -253,7 +256,7 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_initRendering(JNIEnv* /* 
         LOG("Error initialising rendering");
     }*/
 
-    if (!gWrapperData.renderer.init( gObjFilePath, gMtlFilePath)) {
+    if (!gWrapperData.renderer.init( gObjFilePath, gMtlFilePath,SecondObjFilePath,SecondMtlFilePath)) {
         LOG("Error initialising rendering");
     }
 }
@@ -265,7 +268,8 @@ JNIEXPORT void JNICALL
 Java_com_vuforia_engine_native_1sample_MainActivity2_passModelDataToNative(JNIEnv *env,
                                                                            jobject thiz,
                                                                            jstring obj_path,
-                                                                           jstring mtl_path) {
+                                                                           jstring mtl_path,jstring secondobj_path,
+                                                                           jstring secondmtl_path) {
 
     const char *objPathChars = env->GetStringUTFChars(obj_path, nullptr);
     const char *mtlPathChars = env->GetStringUTFChars(mtl_path, nullptr);
@@ -282,6 +286,24 @@ Java_com_vuforia_engine_native_1sample_MainActivity2_passModelDataToNative(JNIEn
     // Make sure to release the Java string resources
     env->ReleaseStringUTFChars(obj_path, objPathChars);
     env->ReleaseStringUTFChars(mtl_path, mtlPathChars);
+
+
+    //TODO second model
+
+    const char *secondObjPathChars = env->GetStringUTFChars(secondobj_path, nullptr);
+    const char *secondMtlPathChars = env->GetStringUTFChars(secondmtl_path, nullptr);
+
+    std::string secondObjFilePath(secondObjPathChars);
+    std::string secondMtlFilePath(secondMtlPathChars);
+
+    SecondObjFilePath = std::string(secondObjPathChars);
+    SecondMtlFilePath = std::string(secondMtlPathChars);
+
+    LOG("Second OBJ Path: %s", SecondObjFilePath.c_str());
+    LOG("Second MTL Path: %s", SecondMtlFilePath.c_str());
+
+    env->ReleaseStringUTFChars(secondobj_path, secondObjPathChars);
+    env->ReleaseStringUTFChars(secondmtl_path, secondMtlPathChars);
 }
 
 
@@ -355,9 +377,38 @@ Java_com_vuforia_engine_native_1sample_VuforiaActivity_renderFrame(JNIEnv* /* en
         VuMatrix44F trackableModelViewScaled;
         VuImageInfo modelTargetGuideViewImage;
         VuBool guideViewImageHasChanged;
+        VuMatrix44F trackableModelViewFirst;
+        VuMatrix44F trackableModelViewSecond;
+        VuMatrix44F scalingMatrix = {
+                0.05f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.05f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.05f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+        };
+
+        VuMatrix44F scaledModelView = vuMatrix44FMultiplyMatrix(trackableModelView, scalingMatrix);
+        VuMatrix44F translationMatrixFirst = {
+                1.0f, 0.0f, 0.0f, 0.001f,
+                0.0f, 1.0f, 0.0f, 0.001f,
+                0.0f, 0.0f, 1.0f, 0.001f,
+                0.0f, 0.0f, 0.0f, 1.0f
+        };
+        trackableModelViewFirst = vuMatrix44FMultiplyMatrix(scaledModelView, translationMatrixFirst);
+        /*VuMatrix44F translationMatrixSecond = {
+                1.0f, 0.0f, 0.0f,  0.125f, // Reduced right translation on x
+                0.0f, 1.0f, 0.0f,  0.0f,   // No translation on y
+                0.0f, 0.0f, 1.0f, -0.25f,  // Reduced back translation on z
+                0.0f, 0.0f, 0.0f,  1.0f
+        };*/
+
+        //trackableModelViewSecond = vuMatrix44FMultiplyMatrix(scaledModelView, translationMatrixSecond);
+
         if (controller.getImageTargetResult(trackableProjection, trackableModelView, trackableModelViewScaled))
         {
-            gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+           // gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelView, trackableModelViewScaled);
+
+            gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelViewFirst, trackableModelViewScaled);
+           // gWrapperData.renderer.renderImageTarget(trackableProjection, trackableModelViewSecond, trackableModelViewScaled);
         }
         else if (controller.getModelTargetResult(trackableProjection, trackableModelView, trackableModelViewScaled))
         {

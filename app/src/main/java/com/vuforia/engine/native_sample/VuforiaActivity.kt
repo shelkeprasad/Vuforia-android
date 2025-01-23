@@ -357,6 +357,7 @@ class VuforiaActivity : AppCompatActivity(), GLSurfaceView.Renderer, SurfaceHold
         val sharedPreferences: SharedPreferences = this.getSharedPreferences("ModelPrefs", Context.MODE_PRIVATE)
         val texturePath = sharedPreferences.getString("model_texture_path", null)
         val texture = texturePath?.let { Texture.loadTextureFromApkOrPath(it) }
+        val texturePath2 = sharedPreferences.getString("model_texture_path_2", null)
 
 
         if (texture != null) {
@@ -367,6 +368,18 @@ class VuforiaActivity : AppCompatActivity(), GLSurfaceView.Renderer, SurfaceHold
         } else {
             Log.e("VuforiaSample", "Failed to load texture")
         }
+
+        val texture2 = texturePath2?.let { Texture.loadTextureFromApkOrPath(it) }
+
+        if (texture2 != null) {
+            setTextures(
+                texture2.width, texture2.height, texture2.data!!,
+                texture2.width, texture2.height, texture2.data!!
+            )
+        } else {
+            Log.e("VuforiaSample", "Failed to load second texture")
+        }
+
 
         // Update flag to tell us we need to update Vuforia configuration
         mSurfaceChanged = true

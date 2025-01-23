@@ -28,7 +28,7 @@ class GLESRenderer
 public:
     /// Initialize the renderer ready for use
    // bool init(AAssetManager* assetManager);
-    bool init(std::string objFilePath, std::string mtlFilePath);
+    bool init(std::string objFilePath, std::string mtlFilePath,std::string secondobjFilePath, std::string secondmtlFilePath);
     /// Clean up objects created during rendering
     void deinit();
 
@@ -141,6 +141,8 @@ private: // data members
 
     bool loadObjModelWithMtl(const std::vector<char> &objData, const std::vector<char> &mtlData,
                              const std::string &basePath);
+
+    void renderTwoModels(VuMatrix44F &projectionMatrix, VuMatrix44F &modelViewMatrix);
 };
 
 #endif //_VUFORIA_GLESRENDERER_H_
